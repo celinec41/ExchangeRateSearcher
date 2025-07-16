@@ -1,0 +1,117 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from WindPy import w
+from datetime import datetime
+import matplotlib.dates as mdates
+
+# Set Chinese font (for macOS; on Windows, change to 'SimHei' or 'Microsoft YaHei')
+plt.rcParams['font.family'] = 'STHeiti'
+plt.rcParams['axes.unicode_minus'] = False
+
+# Start WindPy
+w.start()
+if not w.isconnected():
+    print("❌ WindPy is not connected. Please ensure the terminal is logged in.")
+    exit()
+
+
+def get_data(start_date: str, end_date: str):
+    """
+    Import data from WindPy
+    """
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    gold_label, gold_code = "Shanghai Gold AU99.99", "AU9999.SGE"
+
+    # Note: Some exchange rates like JPY and EUR may be restricted by permissions.
+    symbols = {
+        "USD to CNY": "USDCNH.FX",
+        "EUR to CNY": "EURCNY.EX",
+        "JPY to CNY": "JPYCNY.EX",
+        gold_label: gold_code
+    }
+
+    all_data = {}
+    for label, code in symbols.items():
+        print(f"Fetching {label} ({code}) ...")
+        error, df = w.wsd(code, "close", start_date, min(end_date, today), "Fill=Previous", usedf=True)
+        if error == 0 and not df.empty:
+            df = df.dropna()
+            df.columns = [label]
+            df.reset_index(inplace=True)
+            all_data[label] = df
+            print(f"{label} data fetched successfully with {len(df)} rows.")
+        else:
+            print(f"Failed to fetch {label}. Error code: {error}, Data empty: {df.empty}")
+    return all_data
+
+
+def plot_with_matplotlib(all_data: dict, start_date: str, end_date: str):
+    """
+    Plot exchange rates and gold prices using matplotlib
+    """
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+
+    # Create a second y-axis for gold
+    ax2 = ax1.twinx()
+
+    lines = []
+    labels = []
+
+    for label, df in all_data.items():
+        if "Gold" in label or "黄金" in label:
+            line, = ax2.plot(df["index"], df[label], label=label, color="gold", linewidth=2)
+        else:
+            line, = ax1.plot(df["index"], df[label], label=label)
+        lines.append(line)
+        labels.append(label)
+
+    ax1.set_title(f"Exchange Rates and Gold Price Trends from {start_date} to {end_date}")
+    ax1.set_xlabel("Date")
+    ax1.set_ylabel("Exchange Rate (left axis)")
+    ax2.set_ylabel("Gold Price (right axis)")
+
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+    fig.autofmt_xdate()
+
+    ax1.grid(True)
+    fig.tight_layout()
+
+    ax1.legend(lines, labels, loc="upper left")
+
+    # Save figure with timestamp
+    name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    plt.savefig(name + ".png", dpi=300)
+    plt.show()
+
+
+def get_date_input() -> tuple[str, str]:
+    """
+    Ask user for the start and end date in YYYY-MM format
+    """
+    print("Please enter the date range you want to query:")
+    while True:
+        start_month = input("Start date (e.g., 2015-01): ")
+        end_month = input("End date (e.g., 2024-12): ")
+        try:
+            start_date = datetime.strptime(start_month, "%Y-%m").strftime("%Y-%m-%d")
+            end_date = datetime.strptime(end_month, "%Y-%m").strftime("%Y-%m-%d")
+            if start_date > end_date:
+                print("Start date cannot be after end date.")
+            else:
+                return start_date, end_date
+        except ValueError:
+            print(" Format error. Please enter date in YYYY-MM format.")
+
+
+if __name__ == "__main__":
+    start_date, end_date = get_date_input()
+    try:
+        all_data = get_data(start_date, end_date)
+        if not all_data:
+            print("⚠No data returned. Please check the date range or your Wind account permissions.")
+        else:
+            plot_with_matplotlib(all_data, start_date, end_date)
+    except Exception as e:
+        print("An error occurred:", e)
