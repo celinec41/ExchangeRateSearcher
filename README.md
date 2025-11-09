@@ -3,8 +3,7 @@
 This script fetches **USD/CNY**, **EUR/CNY**, **JPY/CNY**, and **Shanghai Gold AU99.99** prices from **WindPy** and plots them using **Matplotlib**.
 
 ---
-
-## 🪙 Features
+## Features
 
 * Get data directly from Wind Financial Terminal
 * Dual-axis plot: FX (left) and Gold (right)
@@ -13,7 +12,7 @@ This script fetches **USD/CNY**, **EUR/CNY**, **JPY/CNY**, and **Shanghai Gold A
 
 ---
 
-## ⚙️ Requirements
+## Requirements
 
 * Python 3.9+
 * Logged in to **Wind Terminal**
@@ -27,7 +26,7 @@ This script fetches **USD/CNY**, **EUR/CNY**, **JPY/CNY**, and **Shanghai Gold A
 
 ---
 
-## ▶️ How to Run
+## How to Run
 
 1. Make sure Wind is open and logged in.
 2. Run the script:
@@ -40,7 +39,7 @@ This script fetches **USD/CNY**, **EUR/CNY**, **JPY/CNY**, and **Shanghai Gold A
 
 ---
 
-## 🧩 Notes
+## Notes
 
 * If WindPy is not connected → log in to the Wind Terminal first.
 * If data is empty → your account may not have access to some symbols.
@@ -52,7 +51,7 @@ This script fetches **USD/CNY**, **EUR/CNY**, **JPY/CNY**, and **Shanghai Gold A
 
 ---
 
-## 📊 Output Example
+## Output Example
 
 * **Left axis:** Exchange rates (USD, EUR, JPY → CNY)
 * **Right axis:** Gold price (AU99.99)
