@@ -1,4 +1,4 @@
-# ExchangeRateSearcher
+# Exchange Rate Searcher
 
 This script fetches **USD/CNY**, **EUR/CNY**, **JPY/CNY**, and **Shanghai Gold AU99.99** prices from **WindPy** and plots them using **Matplotlib**.
 
